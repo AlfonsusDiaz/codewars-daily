@@ -1,0 +1,14 @@
+WITH tranches_temp AS (
+  select deal_id, currency, sum(amount) as total_amount
+  from tranches
+  group by deal_id, currency
+)
+select d.deal_id, d.deal_name, json_agg(
+  json_build_object('currency', tt.currency, 'total_amount', tt.total_amount)
+  order by currency asc
+) as currency_details
+from deals d
+inner join tranches_temp tt
+on d.deal_id = tt.deal_id
+group by d.deal_id
+order by d.deal_id desc;
